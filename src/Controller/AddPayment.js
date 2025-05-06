@@ -2,7 +2,7 @@
 
 import { redis } from "../DBConnection/redisConnect.js";
 import { InPay } from "../Schema/InPayment.js";
-import moment from 'moment';  // Ensure this import is present
+import moment from 'moment';  
 
 export const addPayment = async (req, res) => {
     try {
@@ -44,3 +44,32 @@ export const addPayment = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getPayment = async (req, res) => {
+    try {
+        const cachKey = "payment: all";
+        const cachedPayments = await redis.get(cachKey);
+
+        if(cachedPayments) {
+            return res.status(200).json({
+                message: "payments received successfully (from cache)",
+                data: JSON.parse(cachedPayments)
+            })
+        }
+
+        const payments = await InPay.findAll({
+            order: [["createdAt", "DESC"]]
+        });
+        await redis.set(cachKey, JSON.stringify(payments), { EX: 3600});
+
+        return res.status(200).json({
+            message: "Payments received successfully.",
+            data: payments,
+        })
+    } catch (error) {
+        console.error("Error in getPayment:", error);
+        return res.status(500).json({ message: "Internal server error" });
+
+        
+    }
+}
