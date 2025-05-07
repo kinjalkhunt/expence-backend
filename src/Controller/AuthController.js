@@ -7,18 +7,63 @@ const JWT_SECRET = process.env.JWT_SECRET || "anjhs%#$vscd00nadjf%%^^*sd"
 
 
 
+// export const registerUser = async (req, res) => {
+//     try {
+//         const { name, email, password } = req.body;
+//         console.log("Incoming register body:", req.body);
+
+//         if (!name || !email || !password) {
+//             return res.status(400).json({ message: "Please fill all Fields" });
+//         }
+
+//         const user = await User.findOne({ where: { email } });
+//         if (user) {
+//             return res.status(400).json({ message: "User Already Exists" }); // fixed typo `ststus`
+//         }
+
+//         const hashPassword = await bcrypt.hash(password, 10);
+
+//         const newUser = await User.create({
+//             name,
+//             email,
+//             password: hashPassword,
+//         });
+
+//         // 🔴 Store in Redis: Key = user:<id>, Value = JSON string of user data (excluding password)
+//         const redisKey = `user:${newUser.id}`;
+//         const redisData = JSON.stringify({
+//             id: newUser.id,
+//             name: newUser.name,
+//             email: newUser.email,
+//         });
+
+//         await redis.set(redisKey, redisData); // or use setEx(redisKey, 3600, redisData) for TTL
+
+//         // ✅ Return response
+//         res.status(201).json({
+//             message: "User Registered Successfully",
+//             user: {
+//                 id: newUser.id,
+//                 name: newUser.name,
+//                 email: newUser.email,
+//             },
+//         });
+
+//     } catch (error) {
+//         console.error("Error in Register User", error);
+//         return res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
 export const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        console.log("Incoming register body:", req.body);
-
         if (!name || !email || !password) {
             return res.status(400).json({ message: "Please fill all Fields" });
         }
 
         const user = await User.findOne({ where: { email } });
         if (user) {
-            return res.status(400).json({ message: "User Already Exists" }); // fixed typo `ststus`
+            return res.status(400).json({ message: "User Already Exists" });
         }
 
         const hashPassword = await bcrypt.hash(password, 10);
@@ -29,18 +74,16 @@ export const registerUser = async (req, res) => {
             password: hashPassword,
         });
 
-        // 🔴 Store in Redis: Key = user:<id>, Value = JSON string of user data (excluding password)
         const redisKey = `user:${newUser.id}`;
         const redisData = JSON.stringify({
             id: newUser.id,
             name: newUser.name,
             email: newUser.email,
         });
+        await redis.set(redisKey, redisData);
 
-        await redis.set(redisKey, redisData); // or use setEx(redisKey, 3600, redisData) for TTL
-
-        // ✅ Return response
-        res.status(201).json({
+        // ✅ Make sure to RETURN JSON properly
+        return res.status(201).json({
             message: "User Registered Successfully",
             user: {
                 id: newUser.id,
