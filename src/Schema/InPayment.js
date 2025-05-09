@@ -16,7 +16,7 @@ export const InPay = sequelize.define("InPayment", {
         allowNull: false,
     },
     paymentMode: {
-        type: DataTypes.ENUM("cash", "online"), // Better than using NUMBER
+        type: DataTypes.ENUM("All","cash", "online"), // Better than using NUMBER
         allowNull: false,
     },
     paymentDate: {
