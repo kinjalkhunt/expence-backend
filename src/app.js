@@ -19,6 +19,13 @@ app.use(cors({
 app.use(express.json());
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+// Global error handler for multer errors
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError || err.message === "Unsupported file type") {
+    return res.status(400).json({ message: err.message });
+  }
+  next(err);
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World");
