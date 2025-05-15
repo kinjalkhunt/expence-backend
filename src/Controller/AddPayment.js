@@ -1,23 +1,23 @@
 
 import { InPay } from "../Schema/InPayment.js";
-import moment from 'moment';  
+import moment from 'moment';
 
 import { redis } from "../DBConnection/redisConnect.js";
 
 export const addPayment = async (req, res) => {
     try {
-        const { amount, description, paymentMode, paymentDate } = req.body;
-        const receiptFile = req.file; 
-        
+        const { amount, description, paymentMode, expenseDate } = req.body;
+        const receiptFile = req.file;
 
-        if (!amount || !description || !paymentMode || !paymentDate) {
+
+        if (!amount || !description || !paymentMode || !expenseDate) {
             return res.status(400).json({ message: "All required fields must be provided." });
         }
 
-        // Ensure paymentDate is formatted correctly
-        const formattedPaymentDate = moment(paymentDate, 'YYYY-MM-DD', true).isValid()
-            ? moment(paymentDate).toISOString()
-            : new Date(paymentDate).toISOString();
+        // Ensure expenseDate is formatted correctly
+        const formattedexpenseDate = moment(expenseDate, 'YYYY-MM-DD', true).isValid()
+            ? moment(expenseDate).toISOString()
+            : new Date(expenseDate).toISOString();
 
         // Get the file path if a file was uploaded
         const receiptUrl = receiptFile ? `/uploads/receipts/${receiptFile.filename}` : undefined;
@@ -26,12 +26,12 @@ export const addPayment = async (req, res) => {
             amount,
             description,
             paymentMode,
-            paymentDate: formattedPaymentDate,
+            expenseDate: formattedexpenseDate,
             receiptUrl,
         });
-        await redis.del("payment"); // Add this after successful creation
+        await redis.del("InPayment");
 
-        await redis.set(`payment:${payment.id}`, JSON.stringify(payment), {
+        await redis.set(`InPayment:${payment.id}`, JSON.stringify(payment), {
             EX: 3600,
         });
 
@@ -41,16 +41,16 @@ export const addPayment = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in addPayment:", error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             message: "Internal server error",
-            error: error.message 
+            error: error.message
         });
     }
 };
 
 export const getPayment = async (req, res) => {
     try {
-        const cacheKey = "payment";
+        const cacheKey = "InPayment";
         const forceRefresh = req.query.forceRefresh === 'true'; // optional query param
 
         if (!forceRefresh) {

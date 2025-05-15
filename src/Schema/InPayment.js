@@ -9,25 +9,26 @@ export const InPay = sequelize.define("InPayment", {
     },
     amount: {
         type: DataTypes.DECIMAL(10, 2),
-        allowNull: false, // Use `allowNull`, not `require`
+        allowNull: false, 
     },
     description: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     paymentMode: {
-        type: DataTypes.ENUM("cash", "online"), // Better than using NUMBER
+        type: DataTypes.ENUM("cash", "online"), 
         allowNull: false,
     },
-    paymentDate: {
+    expenseDate: {
         type: DataTypes.DATEONLY,
         allowNull: false,
+        defaultValue: Sequelize.NOW,
     },
     receiptUrl: {
         type: DataTypes.STRING,
-        allowNull: true, // Optional field for the uploaded receipt
+        allowNull: true, 
     },
 }, {
-    tableName: "InPayments", // Optional: set a custom table name
-    timestamps: true, // Adds createdAt and updatedAt
+    tableName: "InPayments", 
+    timestamps: true, 
 });

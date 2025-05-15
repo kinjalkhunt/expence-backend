@@ -3,14 +3,18 @@ import { authRoute } from "./authRoute.js";
 import { addPayRoute } from "./addPayRoute.js";
 import path from "path";
 import { outPayRoute } from "./outPayRoute.js";
+import express from "express";
 
 export const routes = Router();
-routes.use("/user", authRoute)
-routes.use("/usrLogin", authRoute)
-routes.use("/logout",authRoute)
-// routes.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-routes.use("/addPay",addPayRoute)
-routes.use("/getPay",addPayRoute)
-routes.use("/addOut",outPayRoute)
-routes.use("/get",outPayRoute)
+// Auth routes
+routes.use("/auth", authRoute);
+routes.use("/auth/login", authRoute);
+routes.use("/auth/logout", authRoute);
+
+// Static file serving
+routes.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+// Payment routes
+routes.use("/addPay", addPayRoute);
+routes.use("/addOut", outPayRoute);

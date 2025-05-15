@@ -16,7 +16,7 @@ export const OutExpence = sequelize.define("OutExpence", {
         allowNull: false,
     },
     paymentMode: {
-        type: DataTypes.ENUM("cash", "online"), // Better than using NUMBER
+        type: DataTypes.ENUM("CASH", "ONLINE"), // Better than using NUMBER
         allowNull: false,
     },
     expenseDate: {
