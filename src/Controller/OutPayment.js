@@ -29,7 +29,7 @@ export const addOutExpense = async (req, res) => {
 
     await redis.del("outexpense");
 
-    await redis.set(`outexpense:${expense.id}`, JSON.stringify(expense), { EX: 3600 });
+    await redis.set(`outexpense:${expense.id}`, JSON.stringify(expense), { EX: 30 });
 
     return res.status(201).json({ message: "Expense recorded successfully", data: expense });
   } catch (error) {
@@ -58,7 +58,7 @@ export const GetPayment = async (req, res) => {
     });
 
     // Save to Redis for 1 hour (3600 seconds)
-    await redis.set("outexpense", JSON.stringify(expenses), { EX: 3600 });
+    await redis.set("outexpense", JSON.stringify(expenses), { EX: 100 });
 
     return res.status(200).json({
       message: "Fetched from database",
